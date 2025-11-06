@@ -17,7 +17,7 @@ interface SpotifyTokenResponse {
 
 // Spotify OAuth configuration
 // Note: Spotify requires 127.0.0.1 instead of localhost for loopback addresses
-// See: https://developer.spotify.com/documentation/web-api/concepts/redirect-uri //dead link
+// See: https://developer.spotify.com/documentation/web-api/concepts/redirect_uri
 const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 const SPOTIFY_REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI || 'http://127.0.0.1:3001/api/auth/callback';
