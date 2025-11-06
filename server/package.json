@@ -1,0 +1,8 @@
+{
+  "name": "tunegraph-server",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "../node_modules/.bin/nodemon --watch . --ext ts,json --exec \"../node_modules/.bin/tsx index.ts\""
+  }
+}
