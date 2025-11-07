@@ -58,7 +58,7 @@ function App() {
 
   return (
     <>
-      <div className="bg-black">
+      <div>
         {isLoading ? (
           <div>Loading...</div>
         ) : (

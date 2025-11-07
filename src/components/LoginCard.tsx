@@ -28,7 +28,10 @@ const LoginCard = () => {
             Discover your listening patterns and create shareable stats.
           </h2>
         </div>
-        <Button onClick={handleLogin} className="flex-row w-full bg-green-600">
+        <Button
+          onClick={handleLogin}
+          className="flex-row w-full bg-green-600 hover:bg-green-500"
+        >
           <img src="/spotify.svg" className="w-5 h-5 invert" />
           Login with Spotify
         </Button>
