@@ -12,7 +12,7 @@ interface TopArtist {
   rank: number
   name: string
   id: string
-  genre: string[]
+  genres: string[]
   images: Array<{ url: string; height: number; width: number }>
   popularity: number
   external_urls: { spotify: string }
@@ -66,7 +66,7 @@ const TopArtists = () => {
   }
 
   return (
-    <div className="text-white-500 p-1 m-2">
+    <div className="text-white-500">
       <Tabs value={timeRange} onValueChange={handleTimeRangeChange}>
         <TabsList className="grid w-full grid-cols-3 bg-slate-800 border-emerald-500">
           {timeRanges.map(range => (
@@ -98,24 +98,55 @@ const TopArtists = () => {
                 ) : error ? (
                   <div>{error}</div>
                 ) : (
-                  <div className="space-y-2">
+                  <div className="space-y-6">
                     {topArtists.map(artist => {
                       const artistImage = getArtistImage(artist.images)
                       return (
                         <div
                           key={artist.id}
-                          className="flex items-center gap-4"
+                          className="flex flex-row items-center sm:gap-0 sm:space-y-8 w-full"
                         >
-                          <div className="font-bold text-2xl w-16 h-16 flex justify-center items-center">
-                            {artist.rank}
+                          <div className="flex justify-start items-center sm:gap-8 gap-6 w-full">
+                            {/* Artist Rank */}
+                            <div className="font-bold sm:text-2xl flex justify-center text-slate-400 items-center">
+                              {artist.rank}
+                            </div>
+                            {/* Artist Image */}
+                            {artistImage && (
+                              <img
+                                src={artistImage}
+                                className="sm:w-32 sm:h-32 w-16 h-16 object-cover rounded-full"
+                              />
+                            )}
+                            {/* Artist Name */}
+                            <div className="flex w-32  sm:text-base text-sm">
+                              {artist.name}
+                            </div>
                           </div>
-                          {artistImage && (
-                            <img
-                              src={artistImage}
-                              className="w-32 h-32 object-cover"
-                            />
-                          )}
-                          <div className="flex-1">{artist.name}</div>
+
+                          {/* Artist Genre */}
+                          {/* Show only the first genre on mobile, all on sm+ */}
+                          <div className="flex-1 flex justify-end text-xs sm:min-w-xs text-right text-slate-400">
+                            {/* Mobile: first genre only */}
+                            <span className="block sm:hidden truncate text-wrap overflow-hidden">
+                              {artist.genres && artist.genres.length > 0
+                                ? artist.genres[0].charAt(0).toUpperCase() +
+                                  artist.genres[0].slice(1)
+                                : 'Unknown genres'}
+                            </span>
+                            {/* Desktop: all genres */}
+                            <span className="hidden sm:block">
+                              {artist.genres && artist.genres.length > 0
+                                ? artist.genres
+                                    .map(
+                                      genre =>
+                                        genre.charAt(0).toUpperCase() +
+                                        genre.slice(1)
+                                    )
+                                    .join(', ')
+                                : 'Unknown genres'}
+                            </span>
+                          </div>
                         </div>
                       )
                     })}
