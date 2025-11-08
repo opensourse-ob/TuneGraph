@@ -2,20 +2,18 @@
 import NavBar from './NavBar.tsx'
 import { Button } from './ui/button.tsx'
 import OneTab from './Card'
-import { Clock, Music, Headphones, ArrowUp } from 'lucide-react'
 import TopArtists from './TopArtists.tsx'
 import TopSongs from './TopSongs.tsx'
+import { useState } from 'react'
+import TimeRangeTabs from './TimeRangeTabs'
 
-const MainContainer = props => {
-  const iconClock = Clock
-  const iconMusic = Music
-  const iconHeadphones = Headphones
-  const iconArrowUp = ArrowUp
-  const icons = [iconClock, iconMusic, iconArrowUp, iconHeadphones]
-
-  // const tabs = timeLines.map((timeLine, index) => {
-  //    return <OneTab className={classNameInfo} key={index} timeline={timeLine} cardNames={cardNames} icons={icons} />
-  //  });
+const MainContainer = () => {
+  const [timeRange, setTimeRange] = useState('medium_term')
+  const timeRanges = [
+    { value: 'short_term', label: '4 weeks' },
+    { value: 'medium_term', label: 'Last 3 months' },
+    { value: 'long_term', label: 'Past Year' },
+  ]
 
   return (
     <>
@@ -23,9 +21,19 @@ const MainContainer = props => {
       <div className="bg-slate-950 p-4">
         <div>
           <div className="flex flex-col justify-center w-full mx-auto max-w-7xl rounded-lg">
-            {/* {tabs} */}
-            <TopArtists />
-            <TopSongs />
+            <TimeRangeTabs
+              value={timeRange}
+              onChange={setTimeRange}
+              timeRanges={timeRanges}
+            />
+            <div className="flex justify-between gap-6">
+              <div className="flex-1">
+                <TopArtists timeRange={timeRange} />
+              </div>
+              <div className="flex-1">
+                <TopSongs timeRange={timeRange} />
+              </div>
+            </div>
           </div>
         </div>
       </div>
