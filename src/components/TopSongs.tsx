@@ -8,18 +8,15 @@ import {
 } from './ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
 
-interface TopArtist {
+interface TopSong {
   rank: number
   name: string
-  id: string
-  genres: string[]
-  images: Array<{ url: string; height: number; width: number }>
-  popularity: number
-  external_urls: { spotify: string }
+  artist: string
+  albumCover: string
 }
 
-const TopArtists = () => {
-  const [topArtists, setTopArtists] = useState<TopArtist[]>([])
+const TopSongs = () => {
+  const [topSongs, setTopSongs] = useState<TopSong[]>([])
   const [timeRange, setTimeRange] = useState('medium_term')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -30,12 +27,12 @@ const TopArtists = () => {
     { value: 'long_term', label: 'Past Year' },
   ]
 
-  const fetchTopArtists = async (timeRange: string) => {
+  const fetchTopSongs = async (timeRange: string) => {
     setIsLoading(true)
     setError(null)
     try {
       const response = await fetch(
-        `/api/spotify/top-artists?time_range=${timeRange}&limit=20`,
+        `/api/spotify/top-songs?time_range=${timeRange}&limit=20`,
         { credentials: 'include' }
       )
 
@@ -45,7 +42,7 @@ const TopArtists = () => {
 
       const data = await response.json()
       console.log(data.items)
-      setTopArtists(data.items)
+      setTopSongs(data.items)
     } catch (err) {
       // setError(err)
       console.error(err)
@@ -55,14 +52,14 @@ const TopArtists = () => {
   }
 
   useEffect(() => {
-    fetchTopArtists(timeRange)
+    fetchTopSongs(timeRange)
   }, [timeRange])
 
   const handleTimeRangeChange = (value: string) => {
     setTimeRange(value)
   }
-  const getArtistImage = (images: TopArtist['images']) => {
-    return images && images.length > 0 ? images[0].url : null
+  const getSongImage = (albumCover: TopSong['albumCover']) => {
+    return albumCover
   }
 
   return (
@@ -85,10 +82,10 @@ const TopArtists = () => {
             <Card className="bg-slate-900 text-white border-slate-800">
               <CardHeader>
                 <CardTitle className="flex justify-center text-slate-200 text-2xl">
-                  Top Artists
+                  Top Songs
                 </CardTitle>
                 <CardDescription className="flex justify-center text-slate-300">
-                  Your most listened to artists
+                  Your most listened to songs
                 </CardDescription>
               </CardHeader>
 
@@ -99,45 +96,45 @@ const TopArtists = () => {
                   <div>{error}</div>
                 ) : (
                   <div className="space-y-6">
-                    {topArtists.map(artist => {
-                      const artistImage = getArtistImage(artist.images)
+                    {topSongs.map(song => {
+                      const songImage = getSongImage(song.albumCover)
                       return (
                         <div
-                          key={artist.id}
+                          key={song}
                           className="flex flex-row items-center sm:gap-0 sm:space-y-8 w-full"
                         >
                           <div className="flex justify-start items-center sm:gap-8 gap-6 w-full">
-                            {/* Artist Rank */}
+                            {/* Song Rank */}
                             <div className="font-bold sm:text-2xl flex justify-center text-slate-400 items-center">
-                              {artist.rank}
+                              {song.rank}
                             </div>
-                            {/* Artist Image */}
-                            {artistImage && (
+                            {/* Song Image */}
+                            {songImage && (
                               <img
-                                src={artistImage}
-                                className="sm:w-32 sm:h-32 w-16 h-16 object-cover rounded-full"
+                                src={songImage}
+                                className="sm:w-32 sm:h-32 w-16 h-16 object-cover"
                               />
                             )}
-                            {/* Artist Name */}
+                            {/* Song Name */}
                             <div className="flex w-32  sm:text-base text-sm">
-                              {artist.name}
+                              {song.name}
                             </div>
                           </div>
 
-                          {/* Artist Genre */}
+                          {/* Song Genre */}
                           {/* Show only the first genre on mobile, all on sm+ */}
                           <div className="flex-1 flex justify-end text-xs sm:text-sm sm:min-w-xs text-right text-slate-400">
                             {/* Mobile: first genre only */}
-                            <span className="block sm:hidden truncate text-wrap overflow-hidden">
-                              {artist.genres && artist.genres.length > 0
-                                ? artist.genres[0].charAt(0).toUpperCase() +
-                                  artist.genres[0].slice(1)
+                            <span className="block sm:hidden truncate overflow-hidden">
+                              {song.genres && song.genres.length > 0
+                                ? song.genres[0].charAt(0).toUpperCase() +
+                                  song.genres[0].slice(1)
                                 : 'Unknown genres'}
                             </span>
                             {/* Desktop: all genres */}
                             <span className="hidden sm:block">
-                              {artist.genres && artist.genres.length > 0
-                                ? artist.genres
+                              {song.genres && song.genres.length > 0
+                                ? song.genres
                                     .map(
                                       genre =>
                                         genre.charAt(0).toUpperCase() +
@@ -161,4 +158,4 @@ const TopArtists = () => {
   )
 }
 
-export default TopArtists
+export default TopSongs

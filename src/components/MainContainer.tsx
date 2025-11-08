@@ -4,6 +4,7 @@ import { Button } from './ui/button.tsx'
 import OneTab from './Card'
 import { Clock, Music, Headphones, ArrowUp } from 'lucide-react'
 import TopArtists from './TopArtists.tsx'
+import TopSongs from './TopSongs.tsx'
 
 const MainContainer = props => {
   const iconClock = Clock
@@ -24,6 +25,7 @@ const MainContainer = props => {
           <div className="flex flex-col justify-center w-full mx-auto max-w-7xl rounded-lg">
             {/* {tabs} */}
             <TopArtists />
+            <TopSongs />
           </div>
         </div>
       </div>
