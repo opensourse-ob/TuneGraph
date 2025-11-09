@@ -3,11 +3,11 @@ import express from "express";
 import cors from "cors"; //allows front use api and send cookies
 import cookieParser from "cookie-parser"; //parse cookie in req.cookies
 import type { Request, Response, NextFunction } from "express";
-import authRoutes from "./routes/auth";
-import spotifyRoutes from "./routes/spotify";
+import authRoutes from "./routes/authRoutes";
+import spotifyRoutes from "./routes/spotifyRoutes";
 
-const app = express();
-const PORT = process.env.PORT || 3001;
+const app = express()
+const PORT = process.env.PORT || 3001
 
 // Middleware
 app.use(
@@ -43,14 +43,14 @@ app.get("/authorize");
 // Global error handler
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   const defaultErr = {
-    log: "Express error handler caught middleware error",
+    log: 'Express error handler caught middleware error',
     status: 500,
-    message: { err: "An error occurred" },
-  };
-  const errorObj = Object.assign({}, defaultErr, err);
-  console.log(errorObj.log);
-  return res.status(errorObj.status).json(errorObj.message);
-});
+    message: { err: 'An error occurred' },
+  }
+  const errorObj = Object.assign({}, defaultErr, err)
+  console.log(errorObj.log)
+  return res.status(errorObj.status).json(errorObj.message)
+})
 
 // Start server
 app.listen(PORT, () => {
