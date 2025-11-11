@@ -6,6 +6,7 @@ import type { Request, Response, NextFunction } from "express";
 import authRoutes from "./routes/authRoutes";
 import spotifyRoutes from "./routes/spotifyRoutes";
 
+
 const app = express()
 const PORT = process.env.PORT || 3001
 
@@ -20,7 +21,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true })); //allows to read forms data through req.body
 app.use(cookieParser());
 
-function logger(req, res, next) {
+function logger(req: Request, res: Response, next: NextFunction) {
   //allows to see path
   console.log(req.originalUrl);
   next();
