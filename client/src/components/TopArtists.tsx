@@ -92,18 +92,18 @@ const TopArtists: React.FC<TopArtistsProps> = ({ timeRange }) => {
                       {artistImage && (
                         <img
                           src={artistImage}
-                          className="sm:w-32 sm:h-32 w-16 h-16 object-cover rounded-full"
+                          className="md:w-32 md:h-32 w-16 h-16 object-cover rounded-full"
                         />
                       )}
                       {/* Artist Name */}
-                      <div className="flex w-32  sm:text-base text-sm">
+                      <div className="flex w-32 sm:text-base text-sm">
                         {artist.name}
                       </div>
                     </div>
 
                     {/* Artist Genre */}
                     {/* Show only the first genre on mobile, all on sm+ */}
-                    <div className="flex-1 flex justify-end text-xs sm:text-sm sm:min-w-xs text-right text-slate-400">
+                    <div className="flex-1 flex justify-end text-xs sm:text-sm text-right text-slate-400">
                       {/* Mobile: first genre only */}
                       <span className="block sm:hidden truncate text-wrap overflow-hidden">
                         {artist.genres && artist.genres.length > 0
@@ -112,7 +112,7 @@ const TopArtists: React.FC<TopArtistsProps> = ({ timeRange }) => {
                           : 'Unknown genres'}
                       </span>
                       {/* Desktop: all genres */}
-                      <span className="hidden sm:block">
+                      <span className="hidden w-40 sm:block">
                         {artist.genres && artist.genres.length > 0
                           ? artist.genres
                               .map(

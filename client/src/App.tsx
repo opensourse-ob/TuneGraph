@@ -65,7 +65,7 @@ function App() {
           <>
             <div>
               {isAuthenticated ? (
-                <MainContainer datatest="apiData" />
+                <MainContainer />
               ) : (
                 <>
                   <LoginCard />
