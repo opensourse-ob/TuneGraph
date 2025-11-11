@@ -1,10 +1,10 @@
-import 'dotenv/config'
-import express from 'express'
-import cors from 'cors'
-import cookieParser from 'cookie-parser'
-import type { Request, Response, NextFunction } from 'express'
-import authRoutes from './routes/auth.js'
-import spotifyRoutes from './routes/spotify.js'
+import "dotenv/config"; //read .env
+import express from "express";
+import cors from "cors"; //allows front use api and send cookies
+import cookieParser from "cookie-parser"; //parse cookie in req.cookies
+import type { Request, Response, NextFunction } from "express";
+import authRoutes from "./routes/authRoutes";
+import spotifyRoutes from "./routes/spotifyRoutes";
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -12,30 +12,33 @@ const PORT = process.env.PORT || 3001
 // Middleware
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || 'http://127.0.0.1:5173',
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
     credentials: true,
   })
-)
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
-app.use(cookieParser())
+);
+app.use(express.json());
+app.use(express.urlencoded({ extended: true })); //allows to read forms data through req.body
+app.use(cookieParser());
 
 function logger(req, res, next) {
-  console.log(req.originalUrl)
-  next()
+  //allows to see path
+  console.log(req.originalUrl);
+  next();
 }
-app.use(logger)
+app.use(logger);
+
 // Routes
-app.use('/api/auth', authRoutes)
-app.use('/api/spotify', spotifyRoutes)
+app.use("/api/auth", authRoutes);
+app.use("/api/spotify", spotifyRoutes);
 
 // Example routes
-authRoutes.get('/', (req: Request, res: Response) => {
-  console.log('in middleware from index')
-  res.json({ message: 'Welcome to TuneGraph API' })
-})
+authRoutes.get("/", (req: Request, res: Response) => {
+  //check that server is alive
+  console.log("in middleware from index");
+  res.json({ message: "Welcome to TuneGraph API" });
+});
 
-app.get('/authorize')
+app.get("/authorize");
 
 // Global error handler
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
@@ -51,5 +54,5 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`)
-})
+  console.log(`Server running on http://localhost:${PORT}`);
+});
