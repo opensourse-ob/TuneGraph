@@ -7,9 +7,6 @@ const MOCK_ENV = { ...process.env };
 // Mock the data module to control the constants
 vi.mock("../utils/data", () => ({
     SCOPES: [],
-    SPOTIFY_CLIENT_ID: undefined,
-    SPOTIFY_CLIENT_SECRET: undefined,
-    SPOTIFY_REDIRECT_URI: undefined,
     FRONTEND_URL: "http://localhost:3000",
     get SPOTIFY_CLIENT_ID() {
         return process.env.SPOTIFY_CLIENT_ID;
