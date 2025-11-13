@@ -129,14 +129,6 @@ describe('login controller', () => {
 });
 
 describe("callback controller", () => {
-
-    // build mock spotify callbakc function
-    // test the response returned from api callback function
-
-    const mockFetch = vi.fn();
-
-    let mockPendingStates: Set<string>;
-
     beforeEach(() => {
         vi.resetAllMocks();
 
@@ -150,8 +142,7 @@ describe("callback controller", () => {
         process.env.SPOTIFY_REDIRECT_URI = "http://localhost:8888/callback";
 
         // Access and clear the pendingStates Set from the controller
-        // Note: You may need to export pendingStates for testing or use a different approach
-        mockPendingStates = new Set();        
+        // Note: You may need to export pendingStates for testing or use a different approach      
     });
 
     afterEach(() => {
@@ -213,7 +204,7 @@ describe("callback controller", () => {
         expect(res.json).toHaveBeenCalledWith({error: "Authorization code not provided"})
     });
 
-    it("Should return error if token respons from spotify is fail", async ()=>{
+    it("Should return error if token respons from spotify is failed", async ()=>{
 
         const mockFetch = vi.fn().mockResolvedValue({
             ok: false,
@@ -298,81 +289,122 @@ describe("callback controller", () => {
     // Check that redirect to frontend with ?auth=success happened
     expect(res.redirect).toHaveBeenCalledWith(
         expect.stringContaining("?auth=success")
-    );
+    )
 });
 
-    // it("Redirecting to frontend with auth=success", () => {
+describe("refreshToken controller", () => {
+     beforeEach(() => {
+        vi.resetAllMocks();
 
-    //     const mockResponsData = {
-    //         access_token: "access_token",
-    //         token_type: "type",
-    //         expires_in: 1000,
-    //         refresh_token: "refresh_token",
-    //         scope: "user-read-email"
-    //     };
+        // reset environment
+        for (const key in process.env) delete process.env[key];
+        Object.assign(process.env, MOCK_ENV);
 
-    //     const mockFetch = vi.fn()
+        // set up default env vars
+        process.env.SPOTIFY_CLIENT_ID = "test-client-id";
+        process.env.SPOTIFY_CLIENT_SECRET = "test-client-secret";
+        process.env.SPOTIFY_REDIRECT_URI = "http://localhost:8888/callback";
 
-    //     // verify redirect
-    //     expect(res.redirect).toHaveBeenCalledWith('http://localhost:3000?auth=success');
-    //     expect(res.cookie).toHaveBeenCalledWith("spotify_access_token")
+        // Access and clear the pendingStates Set from the controller
+        // Note: You may need to export pendingStates for testing or use a different approach      
+    });
 
-    // });
-    
-    // it('should successfully exchange code for tokens and redirect', async () => {
-    //     const mockTokenData = {
-    //         access_token: 'access-token-123',
-    //         refresh_token: 'refresh-token-456',
-    //         expires_in: 3600,
-    //         token_type: 'Bearer',
-    //     };
+    afterEach(() => {
+        Object.assign(process.env, MOCK_ENV);
+    });
 
+     it("Should return error If no refresh token" , async () => {
+
+    const req = {
+        cookies: {
+            spotify_refresh_token: ""
+        }
+    } as unknown as Request
+
+    const res = {
+            status: vi.fn().mockReturnThis(),
+            json: vi.fn(),
+            clearCookie: vi.fn()
+    } as unknown as Response
+
+    await refreshToken(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({error: "Refresh token is required"})
+     });
+
+     it("Should return error if refresh token is failed", async () => {
+        const mockFetch = vi.fn().mockResolvedValue({
+            ok: false,
+            text: async () => "some error"
+        });
+
+        global.fetch = mockFetch as any;
+
+        const req = {
+            cookies: {
+                spotify_refresh_token: "some token"
+            }
+        }
         
+        const res = {
+            status: vi.fn().mockReturnThis(),
+            json: vi.fn(),
+            clearCookie: vi.fn()
+        };
 
-    //     mockFetch.mockResolvedValueOnce({
-    //         ok: true,
-    //         json: vi.fn().mockResolvedValue(mockTokenData),
-    //     });
+        await refreshToken(req, res);
 
-    //     const req = createMockRequest(
-    //         { code: 'auth-code', state: 'state123' },
-    //         { spotify_auth_state: 'state123' }
-    //     );
-    //     const res = createMockResponse();
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.json).toHaveBeenCalledWith({error: "Failed to refresh token"})
+     });
+    })
 
-    //     await callback(req, res);
+     it("Success to update cookies with new access token", async () => {
 
-    //     // Verify fetch was called correctly
-    //     expect(mockFetch).toHaveBeenCalledWith(
-    //         'https://accounts.spotify.com/api/token',
-    //         expect.objectContaining({
-    //             method: 'POST',
-    //             headers: expect.objectContaining({
-    //                 'Content-Type': 'application/x-www-form-urlencoded',
-    //             }),
-    //         })
-    //     );
+    // Mock fetch so it returns a successful response from Spotify
+    const mockGetData = vi.fn().mockResolvedValue({
+        ok: true,                // Spotify says request was successful
+        json: async () => ({     // This is the JSON we get from Spotify
+            access_token: "new token",   // new access token
+            refresh_token: "dfg",        // new refresh token
+        })
+    });
 
-    //     // Verify cookies were set
-    //     expect(res.cookie).toHaveBeenCalledWith(
-    //         'spotify_access_token',
-    //         'access-token-123',
-    //         expect.objectContaining({
-    //             httpOnly: true,
-    //             sameSite: 'lax',
-    //         })
-    //     );
+    // Replace real global fetch with our mock version
+    global.fetch = mockGetData as any;
 
-    //     expect(res.cookie).toHaveBeenCalledWith(
-    //         'spotify_refresh_token',
-    //         'refresh-token-456',
-    //         expect.objectContaining({
-    //             httpOnly: true,
-    //             sameSite: 'lax',
-    //         })
-    //     );
+    // Fake request object
+    // It contains the refresh token saved in cookies
+    const req = {
+        cookies: { spotify_refresh_token: "dfg" }
+    } as unknown as Request;
+    
+    // Fake response object
+    // We mock all methods we expect the controller to use
+    const res = {
+        status: vi.fn().mockReturnThis(),   // allows res.status().json()
+        cookie: vi.fn().mockReturnThis(),   // allows res.cookie().cookie()
+        json: vi.fn(),                      // captures JSON response
+        clearCookie: vi.fn()                // if controller clears cookies
+    } as unknown as Response;
 
-    //     // Verify redirect
-    //     expect(res.redirect).toHaveBeenCalledWith('http://localhost:3000?auth=success');
-    // });
-});
+    // Call the controller function we want to test
+    await refreshToken(req, res);
+
+    // Check that fetch was called exactly 1 time
+    expect(mockGetData).toHaveBeenCalledTimes(1);
+
+    // Check that access_token cookie was updated correctly
+    expect(res.cookie).toHaveBeenCalledWith(
+        "spotify_access_token",
+        "new token",
+        expect.objectContaining({
+            httpOnly: true,   // cookie is protected
+            sameSite: "lax"   // sameSite setting
+        })
+    );
+    // Check that controller returned a success message
+    expect(res.json).toHaveBeenCalledWith({ success: true });
+})
+})
