@@ -89,7 +89,7 @@ const TopSongs: React.FC<TopSongsProps> = ({ timeRange }) => {
                       {songImage && (
                         <img
                           src={songImage}
-                          className="sm:w-32 sm:h-32 w-16 h-16 object-cover"
+                          className="md:w-32 md:h-32 w-16 h-16 object-cover"
                         />
                       )}
                       {/* Song Name */}
