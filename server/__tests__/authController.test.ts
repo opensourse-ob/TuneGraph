@@ -124,8 +124,11 @@ describe('login controller', () => {
 });
 
 describe("callback controller", () => {
+
     // build mock spotify callbakc function
     // test the response returned from api callback function
+
+    const mockFetch = vi.fn();
 
     let mockPendingStates: Set<string>;
 
@@ -185,5 +188,80 @@ describe("callback controller", () => {
         expect(res.clearCookie).toHaveBeenLastCalledWith("spotify_auth_state")
         expect(res.status).toHaveBeenCalledWith(403);
         expect(res.json).toHaveBeenCalled()  
-    });   
+    });
+
+    // it("Redirecting to frontend with auth=success", () => {
+
+    //     const mockResponsData = {
+    //         access_token: "access_token",
+    //         token_type: "type",
+    //         expires_in: 1000,
+    //         refresh_token: "refresh_token",
+    //         scope: "user-read-email"
+    //     };
+
+    //     const mockFetch = vi.fn()
+
+    //     // verify redirect
+    //     expect(res.redirect).toHaveBeenCalledWith('http://localhost:3000?auth=success');
+    //     expect(res.cookie).toHaveBeenCalledWith("spotify_access_token")
+
+    // });
+    
+    // it('should successfully exchange code for tokens and redirect', async () => {
+    //     const mockTokenData = {
+    //         access_token: 'access-token-123',
+    //         refresh_token: 'refresh-token-456',
+    //         expires_in: 3600,
+    //         token_type: 'Bearer',
+    //     };
+
+        
+
+    //     mockFetch.mockResolvedValueOnce({
+    //         ok: true,
+    //         json: vi.fn().mockResolvedValue(mockTokenData),
+    //     });
+
+    //     const req = createMockRequest(
+    //         { code: 'auth-code', state: 'state123' },
+    //         { spotify_auth_state: 'state123' }
+    //     );
+    //     const res = createMockResponse();
+
+    //     await callback(req, res);
+
+    //     // Verify fetch was called correctly
+    //     expect(mockFetch).toHaveBeenCalledWith(
+    //         'https://accounts.spotify.com/api/token',
+    //         expect.objectContaining({
+    //             method: 'POST',
+    //             headers: expect.objectContaining({
+    //                 'Content-Type': 'application/x-www-form-urlencoded',
+    //             }),
+    //         })
+    //     );
+
+    //     // Verify cookies were set
+    //     expect(res.cookie).toHaveBeenCalledWith(
+    //         'spotify_access_token',
+    //         'access-token-123',
+    //         expect.objectContaining({
+    //             httpOnly: true,
+    //             sameSite: 'lax',
+    //         })
+    //     );
+
+    //     expect(res.cookie).toHaveBeenCalledWith(
+    //         'spotify_refresh_token',
+    //         'refresh-token-456',
+    //         expect.objectContaining({
+    //             httpOnly: true,
+    //             sameSite: 'lax',
+    //         })
+    //     );
+
+    //     // Verify redirect
+    //     expect(res.redirect).toHaveBeenCalledWith('http://localhost:3000?auth=success');
+    // });
 });
