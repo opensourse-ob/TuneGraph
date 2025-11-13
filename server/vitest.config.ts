@@ -7,7 +7,7 @@ export default defineConfig({
     environment: 'node',
 
     // Where to look for test files
-    include: ['src/**/*.test.ts', 'tests/**/*.test.ts', 'server/__tests__/**/*.test.ts'],
+    include: ['**/*.test.ts'],
 
     // Optional: clear mocks between tests
     clearMocks: true,
