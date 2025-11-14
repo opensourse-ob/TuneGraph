@@ -14,7 +14,7 @@ const NavBar = () => {
         </h2>
       </div>
 
-      <ShareDialog />
+      <ShareDialog timeRange="medium_term" />
     </nav>
   )
 }

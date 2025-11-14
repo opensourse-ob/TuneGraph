@@ -111,7 +111,9 @@ export function ShareDialog({ timeRange = 'medium_term' }: ShareDialogProps) {
     <Dialog>
       <form>
         <DialogTrigger asChild>
-          <Button className="bg-green-600">Create Shareable</Button>
+          <Button className="bg-green-600 hover:bg-green-700">
+            Create Shareable
+          </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px] bg-slate-900 border border-slate-700">
           <DialogHeader>

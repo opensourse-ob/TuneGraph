@@ -1,7 +1,7 @@
 // import {useEffect, useState} from 'react'
 import NavBar from './NavBar.tsx'
-import { Button } from './ui/button.tsx'
-import OneTab from './Card'
+//import { Button } from './ui/button.tsx'
+//import OneTab from './Card'
 import TopArtists from './TopArtists.tsx'
 import TopSongs from './TopSongs.tsx'
 import { useState } from 'react'
@@ -26,9 +26,9 @@ const MainContainer = () => {
   return (
     <>
       <NavBar />
-      <div className="bg-slate-950 p-8">
-        <div>
-          <div className="flex flex-col justify-center w-full mx-auto max-w-7xl rounded-lg">
+      <div className="bg-slate-950 p-4 sm:p-6 lg:p-8 overflow-x-hidden">
+        <div className="w-full overflow-x-hidden">
+          <div className="flex flex-col justify-center w-full mx-auto max-w-7xl rounded-lg min-w-0">
             {/* Mobile filter dropdown */}
             <div className="block sm:hidden mb-4">
               <Select
@@ -50,11 +50,11 @@ const MainContainer = () => {
               timeRanges={timeRanges}
             />
             {/* Desktop: show both artist and songs */}
-            <div className="hidden sm:flex justify-between gap-6">
-              <div className="flex-1">
+            <div className="hidden sm:flex justify-between gap-4 lg:gap-6 min-w-0">
+              <div className="flex-1 min-w-0">
                 <TopArtists timeRange={timeRange} />
               </div>
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <TopSongs timeRange={timeRange} />
               </div>
             </div>
