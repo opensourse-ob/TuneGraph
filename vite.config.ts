@@ -5,7 +5,7 @@ import path from 'path'
 
 // https://vite.dev/config/
 export default defineConfig({
-root: "client",
+  root: './client',
   plugins: [
     tailwindcss(),
     react({

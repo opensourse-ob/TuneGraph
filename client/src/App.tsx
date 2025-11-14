@@ -17,7 +17,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(true)
   const checkAuthentication = async () => {
     try {
-      const res = await fetch('api/auth/status', {
+      const res = await fetch('/api/auth/status', {
         credentials: 'include', // sends cookies with request
       })
       // console.log('res:',res)
