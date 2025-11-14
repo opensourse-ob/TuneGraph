@@ -13,6 +13,7 @@ import {
   SelectContent,
   SelectItem,
 } from './ui/select.tsx'
+import { ArtistChart } from './ArtistChart.tsx'
 
 const MainContainer = () => {
   const [mobileView, setMobileView] = useState<'artists' | 'songs'>('artists')
@@ -64,6 +65,12 @@ const MainContainer = () => {
               ) : (
                 <TopSongs timeRange={timeRange} />
               )}
+            </div>
+            <div className="flex flex-col align-middle justify-center mt-6 bg-slate-900 rounded-lg border border-slate-800 p-8">
+              <h1 className="text-white text-center text-3xl font-bold pb-8">
+                Your Top Artists' Popularity
+              </h1>
+              <ArtistChart timeRange={timeRange} />
             </div>
           </div>
         </div>
