@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from 'react'
 import {
   Card,
   CardContent,
@@ -6,55 +5,16 @@ import {
   CardHeader,
   CardTitle,
 } from './ui/card'
-
-interface TopArtist {
-  rank: number
-  name: string
-  id: string
-  genres: string[]
-  images: Array<{ url: string; height: number; width: number }>
-  popularity: number
-  external_urls: { spotify: string }
-}
+import { useTopArtists } from '@/hooks/useTopArtists'
 
 interface TopArtistsProps {
   timeRange: string
 }
 
 const TopArtists: React.FC<TopArtistsProps> = ({ timeRange }) => {
-  const [topArtists, setTopArtists] = useState<TopArtist[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const { topArtists, isLoading, error } = useTopArtists(timeRange, 20)
 
-  const fetchTopArtists = async (timeRange: string) => {
-    setIsLoading(true)
-    setError(null)
-    try {
-      const response = await fetch(
-        `/api/spotify/top-artists?time_range=${timeRange}&limit=20`,
-        { credentials: 'include' }
-      )
-
-      if (!response.ok) {
-        throw new Error('Error fetching top artists')
-      }
-
-      const data = await response.json()
-      console.log(data.items)
-      setTopArtists(data.items)
-    } catch (err) {
-      // setError(err)
-      console.error(err)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    fetchTopArtists(timeRange)
-  }, [timeRange])
-
-  const getArtistImage = (images: TopArtist['images']) => {
+  const getArtistImage = (images: (typeof topArtists)[0]['images']) => {
     return images && images.length > 0 ? images[0].url : null
   }
 
@@ -73,7 +33,7 @@ const TopArtists: React.FC<TopArtistsProps> = ({ timeRange }) => {
           {isLoading ? (
             <div> Loading...</div>
           ) : error ? (
-            <div>{error}</div>
+            <div>{error.message}</div>
           ) : (
             <div className="space-y-6">
               {topArtists.map(artist => {
@@ -83,45 +43,43 @@ const TopArtists: React.FC<TopArtistsProps> = ({ timeRange }) => {
                     key={artist.id}
                     className="flex flex-row items-center sm:gap-0 sm:space-y-8 w-full"
                   >
-                    <div className="flex justify-start items-center sm:gap-8 gap-6 w-full">
+                    <div className="flex justify-start items-center sm:gap-8 gap-6 w-full min-w-0">
                       {/* Artist Rank */}
-                      <div className="font-bold sm:text-2xl flex justify-center text-slate-400 items-center">
+                      <div className="font-bold sm:text-2xl flex justify-center text-slate-400 items-center w-8 sm:w-12 tabular-nums shrink-0">
                         {artist.rank}
                       </div>
                       {/* Artist Image */}
                       {artistImage && (
                         <img
                           src={artistImage}
-                          className="md:w-32 md:h-32 w-16 h-16 object-cover rounded-full"
+                          className="lg:w-32 lg:h-32 w-16 h-16 object-cover rounded-full shrink-0"
                         />
                       )}
-                      {/* Artist Name */}
-                      <div className="flex w-32 sm:text-base text-sm">
-                        {artist.name}
+                      {/* Artist Name and Genres */}
+                      <div className="flex flex-col lg:flex-row w-full min-w-0 gap-1 lg:gap-0 lg:justify-between lg:items-center">
+                        <div className="flex min-w-0 sm:text-base text-sm truncate">
+                          {artist.name}
+                        </div>
+                        <div className="text-slate-400 text-xs sm:text-sm truncate lg:text-right lg:max-w-[180px]">
+                          <span className="lg:hidden">
+                            {artist.genres && artist.genres.length > 0
+                              ? artist.genres[0].charAt(0).toUpperCase() +
+                                artist.genres[0].slice(1)
+                              : 'Unknown genres'}
+                          </span>
+                          <span className="hidden lg:inline">
+                            {artist.genres && artist.genres.length > 0
+                              ? artist.genres
+                                  .map(
+                                    genre =>
+                                      genre.charAt(0).toUpperCase() +
+                                      genre.slice(1)
+                                  )
+                                  .join(', ')
+                              : 'Unknown genres'}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-
-                    {/* Artist Genre */}
-                    {/* Show only the first genre on mobile, all on sm+ */}
-                    <div className="flex-1 flex justify-end text-xs sm:text-sm text-right text-slate-400">
-                      {/* Mobile: first genre only */}
-                      <span className="block sm:hidden truncate text-wrap overflow-hidden">
-                        {artist.genres && artist.genres.length > 0
-                          ? artist.genres[0].charAt(0).toUpperCase() +
-                            artist.genres[0].slice(1)
-                          : 'Unknown genres'}
-                      </span>
-                      {/* Desktop: all genres */}
-                      <span className="hidden w-40 sm:block">
-                        {artist.genres && artist.genres.length > 0
-                          ? artist.genres
-                              .map(
-                                genre =>
-                                  genre.charAt(0).toUpperCase() + genre.slice(1)
-                              )
-                              .join(', ')
-                          : 'Unknown genres'}
-                      </span>
                     </div>
                   </div>
                 )

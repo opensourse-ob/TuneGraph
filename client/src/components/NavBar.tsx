@@ -1,5 +1,6 @@
 import { Button } from './ui/button'
 import { MusicIcon } from 'lucide-react'
+import { ShareDialog } from './DialogShareable'
 
 const NavBar = () => {
   return (
@@ -13,7 +14,7 @@ const NavBar = () => {
         </h2>
       </div>
 
-      <Button className="bg-green-600">Create Shareable</Button>
+      <ShareDialog timeRange="medium_term" />
     </nav>
   )
 }

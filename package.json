@@ -16,6 +16,7 @@
     "test": "vitest"
   },
   "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-navigation-menu": "^1.2.14",
     "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-slot": "^1.2.3",
@@ -26,6 +27,8 @@
     "cookie-parser": "^1.4.7",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "html2canvas": "^1.4.1",
+    "html2canvas-pro": "^1.5.13",
     "iconoir": "^7.11.0",
     "lucide-react": "^0.548.0",
     "react": "^19.1.1",

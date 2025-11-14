@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useTopSongs } from '@/hooks/useTopSongs'
 import {
   Card,
   CardContent,
@@ -7,51 +7,14 @@ import {
   CardTitle,
 } from './ui/card'
 
-interface TopSong {
-  rank: number
-  name: string
-  artist: string
-  albumCover: string
-}
-
 interface TopSongsProps {
   timeRange: string
 }
 
 const TopSongs: React.FC<TopSongsProps> = ({ timeRange }) => {
-  const [topSongs, setTopSongs] = useState<TopSong[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const { topSongs, isLoading, error } = useTopSongs(timeRange, 20)
 
-  const fetchTopSongs = async (timeRange: string) => {
-    setIsLoading(true)
-    setError(null)
-    try {
-      const response = await fetch(
-        `/api/spotify/top-songs?time_range=${timeRange}&limit=20`,
-        { credentials: 'include' }
-      )
-
-      if (!response.ok) {
-        throw new Error('Error fetching top artists')
-      }
-
-      const data = await response.json()
-      console.log(data.items)
-      setTopSongs(data.items)
-    } catch (err) {
-      // setError(err)
-      console.error(err)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    fetchTopSongs(timeRange)
-  }, [timeRange])
-
-  const getSongImage = (albumCover: TopSong['albumCover']) => {
+  const getSongImage = (albumCover: (typeof topSongs)[0]['albumCover']) => {
     return albumCover
   }
 
@@ -70,7 +33,7 @@ const TopSongs: React.FC<TopSongsProps> = ({ timeRange }) => {
           {isLoading ? (
             <div> Loading...</div>
           ) : error ? (
-            <div>{error}</div>
+            <div>{error.message}</div>
           ) : (
             <div className="space-y-6">
               {topSongs.map(song => {
@@ -80,21 +43,29 @@ const TopSongs: React.FC<TopSongsProps> = ({ timeRange }) => {
                     key={song.name}
                     className="flex flex-row items-center sm:gap-0 sm:space-y-8 w-full"
                   >
-                    <div className="flex justify-start items-center sm:gap-8 gap-6 w-full">
+                    <div className="flex justify-start items-center sm:gap-8 gap-6 w-full min-w-0">
                       {/* Song Rank */}
-                      <div className="font-bold sm:text-2xl flex justify-center text-slate-400 items-center">
+                      <div className="font-bold sm:text-2xl flex justify-center text-slate-400 items-center w-8 sm:w-12 tabular-nums shrink-0">
                         {song.rank}
                       </div>
                       {/* Song Image */}
                       {songImage && (
                         <img
                           src={songImage}
-                          className="md:w-32 md:h-32 w-16 h-16 object-cover"
+                          className="lg:w-32 lg:h-32 w-16 h-16 object-cover shrink-0"
                         />
                       )}
-                      {/* Song Name */}
-                      <div className="flex w-32  sm:text-base text-sm">
-                        {song.name}
+                      {/* Song Name and Artist */}
+                      <div className="flex flex-col lg:flex-row w-full min-w-0 gap-1 lg:gap-0 lg:justify-between lg:items-center">
+                        <div className="flex min-w-0 sm:text-base text-sm truncate">
+                          {song.name}
+                        </div>
+                        <div className="text-slate-400 text-xs sm:text-sm truncate lg:text-right lg:max-w-[180px]">
+                          <span className="lg:hidden">{song.artist[0]}</span>
+                          <span className="hidden lg:inline">
+                            {song.artist.join(', ')}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
