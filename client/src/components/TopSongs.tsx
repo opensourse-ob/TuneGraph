@@ -57,10 +57,13 @@ const TopSongs: React.FC<TopSongsProps> = ({ timeRange }) => {
                       )}
                       {/* Song Name and Artist */}
                       <div className="flex flex-col lg:flex-row w-full min-w-0 gap-1 lg:gap-0 lg:justify-between lg:items-center">
-                        <div className="flex min-w-0 sm:text-base text-sm truncate">
+                        <div className="flex min-w-0 sm:text-base text-sm">
                           {song.name}
                         </div>
-                        <div className="text-slate-400 text-xs sm:text-sm truncate lg:text-right lg:max-w-[180px]">
+                        <div
+                          className="text-slate-400 text-xs sm:text-sm truncate lg:text-right lg:max-w-[180px]"
+                          title={song.artist.join(', ')}
+                        >
                           <span className="lg:hidden">{song.artist[0]}</span>
                           <span className="hidden lg:inline">
                             {song.artist.join(', ')}
