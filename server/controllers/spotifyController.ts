@@ -150,7 +150,7 @@ export const getUserProfile = async (req: Request, res: Response) => {
   try {
     
     const accessToken = (req as any).accessToken;
-    const user_id  = req.query.id;
+    const user_id  = req.params.id;
 
     if(!user_id) {
       res.status(404).json({error: "no user id"});
@@ -163,8 +163,12 @@ export const getUserProfile = async (req: Request, res: Response) => {
       }
     });
     
-    if(!fetchUser) {
-      res.status(404).json({error: ""});
+    if(!fetchUser.ok) {
+      const text = await fetchUser.text()
+      return res.status(fetchUser.status).json({
+        error: "fetch failed",
+        details: text
+      });
     };
 
     const userProfile = await fetchUser.json()
