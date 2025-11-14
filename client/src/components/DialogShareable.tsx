@@ -69,13 +69,10 @@ export function ShareDialog({ timeRange = 'medium_term' }: ShareDialogProps) {
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px] bg-slate-900 border border-slate-700">
           <DialogHeader>
-            <DialogTitle className="text-slate-300 text-center mb-2">
-              Save Your Stats
-            </DialogTitle>
-            <div ref={contentRef}>
-              <h2 className="text-slate-200 text-center font-bold mb-2">
+            <div ref={contentRef} className="p-8 bg-slate-900 ">
+              <DialogTitle className="text-slate-300 text-2xl text-center font-bold mb-8">
                 My Top Artists & Songs
-              </h2>
+              </DialogTitle>
 
               {isLoading ? (
                 <div className="text-white">Loading...</div>
@@ -126,10 +123,10 @@ export function ShareDialog({ timeRange = 'medium_term' }: ShareDialogProps) {
                     </div>
                   </div>
                   <div className="flex items-center justify-center space-x-2">
-                    <div className="bg-green-600 rounded-full sm:p-4 p-2 flex items-center justify-center">
-                      <MusicIcon className="w-4 h-4 text-black " />
+                    <div className="bg-green-600 rounded-full p-2 flex items-center justify-center">
+                      <MusicIcon className="w-8 h-8 text-black " />
                     </div>
-                    <h2 className="justify-center align-center sm:text-3xl text-2xl text-white font-bold ">
+                    <h2 className="justify-center align-center text-2xl text-white font-bold ">
                       TuneGraph
                     </h2>
                   </div>
