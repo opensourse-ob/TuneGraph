@@ -9,72 +9,24 @@ import {
   DialogClose,
   DialogFooter,
 } from './ui/dialog'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useRef } from 'react'
 import html2canvas from 'html2canvas-pro'
-
-interface TopSong {
-  rank: number
-  name: string
-  artist: string
-  albumCover: string
-}
-
-interface TopArtist {
-  rank: number
-  name: string
-  id: string
-  genres: string[]
-  images: Array<{ url: string; height: number; width: number }>
-  popularity: number
-  external_urls: { spotify: string }
-}
+import { useTopArtists } from '@/hooks/useTopArtists'
+import { useTopSongs } from '@/hooks/useTopSongs'
 
 interface ShareDialogProps {
   timeRange: string
 }
 
 export function ShareDialog({ timeRange = 'medium_term' }: ShareDialogProps) {
-  const [topArtists, setTopArtists] = useState<TopArtist[]>([])
-  const [topSongs, setTopSongs] = useState<TopSong[]>([])
-  const [isLoading, setIsLoading] = useState(false)
+  const { topArtists, isLoading: isLoadingArtists } = useTopArtists(
+    timeRange,
+    3
+  )
+  const { topSongs, isLoading: isLoadingTopSongs } = useTopSongs(timeRange, 3)
   const [isGenerating, setIsGenerating] = useState(false)
   const contentRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true)
-      try {
-        // Fetch top 3 artists
-        const artistsResponse = await fetch(
-          `/api/spotify/top-artists?time_range=${timeRange}&limit=3`,
-          { credentials: 'include' }
-        )
-
-        if (!artistsResponse.ok) {
-          throw new Error('Error fetching top artists')
-        }
-        const artistsData = await artistsResponse.json()
-        setTopArtists(artistsData.items || [])
-
-        // Fetch top 3 songs
-        const songsResponse = await fetch(
-          `/api/spotify/top-songs?time_range=${timeRange}&limit=3`,
-          { credentials: 'include' }
-        )
-
-        if (!songsResponse.ok) {
-          throw new Error('Error fetching top artists')
-        }
-        const songsData = await songsResponse.json()
-        setTopSongs(songsData.items || [])
-      } catch (err) {
-        console.error('Error fetching data:', err)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    fetchData()
-  }, [timeRange])
+  const isLoading = isLoadingArtists || isLoadingTopSongs
 
   const handleDownload = async () => {
     if (!contentRef.current) return

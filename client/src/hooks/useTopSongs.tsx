@@ -26,7 +26,7 @@ export const useTopSongs = (
     setError(null)
     try {
       const response = await fetch(
-        `/api/spotify/top-songs?time_range=${timeRange}&limit=20`,
+        `/api/spotify/top-songs?time_range=${timeRange}&limit=${limit}`,
         { credentials: 'include' }
       )
 
@@ -47,7 +47,7 @@ export const useTopSongs = (
 
   useEffect(() => {
     fetchTopSongs(timeRange)
-  }, [timeRange])
+  }, [timeRange, limit])
 
   return { topSongs, isLoading, error }
 }

@@ -29,7 +29,7 @@ export const useTopArtists = (
     setError(null)
     try {
       const response = await fetch(
-        `/api/spotify/top-artists?time_range=${timeRange}&limit=20`,
+        `/api/spotify/top-artists?time_range=${timeRange}&limit=${limit}`,
         { credentials: 'include' }
       )
 
@@ -50,7 +50,7 @@ export const useTopArtists = (
 
   useEffect(() => {
     fetchTopArtists(timeRange)
-  }, [timeRange])
+  }, [timeRange, limit])
 
   return { topArtists, isLoading, error }
 }
