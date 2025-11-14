@@ -34,3 +34,24 @@ export interface SpotifyTrack {
 export interface SpotifyTopTracksResponse {
   items: SpotifyTrack[];
 }
+
+export interface SpotifyUserProfile {
+  user_id: "string",
+  display_name: "string",
+  country: "string",
+  email: "string",
+
+  followers: {
+    href: "string",
+    total: "number"
+  },
+  href: "string",
+  id: "string",
+  images: [
+    {
+      url: "string",
+      height: "number",
+      width: "number"
+    }
+  ]
+}

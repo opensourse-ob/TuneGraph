@@ -7,7 +7,9 @@ import type {
   SpotifyArtist,
   SpotifyTopArtistsResponse,
   SpotifyTrack,
-  SpotifyTopTracksResponse,
+  SpotifyUserProfile,
+  SpotifyTopTracksResponse
+
 } from "../types/typesServer";
 // Import TypeScript interfaces that describe the structure of Spotify API data
 
@@ -141,3 +143,27 @@ export const getTopGenres = async (req: Request, res: Response) => {
     handleError(error, res, "Failed to fetch top genres");
   }
 };
+
+//---------------------get user profile-----------
+
+export const getUserProfile = async (req: Request, res: Response) => {
+  try {
+
+     const accessToken = (req as any).accessToken;
+
+    const user_id  = req.query.id 
+ 
+    const fetchUser = await fetch (`https://api.spotify.com/v1/users/${user_id}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json"
+      }
+    });
+    
+
+    res.json({})
+
+  } catch (error) {
+    
+  }
+}
