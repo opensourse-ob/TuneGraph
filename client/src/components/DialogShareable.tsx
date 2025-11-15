@@ -13,6 +13,7 @@ import { useState, useRef } from 'react'
 import html2canvas from 'html2canvas-pro'
 import { useTopArtists } from '@/hooks/useTopArtists'
 import { useTopSongs } from '@/hooks/useTopSongs'
+import { useUserProfile } from '@/hooks/useUserProfile'
 
 interface ShareDialogProps {
   timeRange: string
@@ -24,9 +25,10 @@ export function ShareDialog({ timeRange = 'medium_term' }: ShareDialogProps) {
     3
   )
   const { topSongs, isLoading: isLoadingTopSongs } = useTopSongs(timeRange, 3)
+  const { userProfile, isLoading: isLoadingProfile } = useUserProfile()
   const [isGenerating, setIsGenerating] = useState(false)
   const contentRef = useRef<HTMLDivElement>(null)
-  const isLoading = isLoadingArtists || isLoadingTopSongs
+  const isLoading = isLoadingArtists || isLoadingTopSongs || isLoadingProfile
 
   const handleDownload = async () => {
     if (!contentRef.current) return
@@ -70,18 +72,32 @@ export function ShareDialog({ timeRange = 'medium_term' }: ShareDialogProps) {
         <DialogContent className="sm:max-w-[425px] bg-slate-900 border border-slate-700">
           <DialogHeader>
             <div ref={contentRef} className="p-8 bg-slate-900 ">
-              <DialogTitle className="text-slate-300 text-2xl text-center font-bold mb-8">
-                My Top Artists & Songs
-              </DialogTitle>
-
               {isLoading ? (
                 <div className="text-white">Loading...</div>
               ) : (
-                <div className="space-y-8">
-                  {/* Top Artists Section */}
+                <div className="space-y-6">
+                  {/* User Profile Section */}
+                  {userProfile && (
+                    <div className="flex items-center justify-center gap-4 mb-6">
+                      {userProfile.images?.[0]?.url && (
+                        <img
+                          src={userProfile.images[0].url}
+                          className="w-16 h-16 rounded-full border-2 border-green-600"
+                          alt={userProfile.display_name}
+                        />
+                      )}
+                      <div>
+                        <DialogTitle className="text-slate-300 text-xl font-bold">
+                          {userProfile.display_name}'s Top Music
+                        </DialogTitle>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Top Artists & Songs Section */}
                   <div className="flex gap-2 ">
                     <div className="space-y-4">
-                      {topArtists.map((artist, index) => {
+                      {topArtists.map(artist => {
                         const artistImage = artist.images?.[0]?.url
                         return (
                           <div
@@ -122,7 +138,9 @@ export function ShareDialog({ timeRange = 'medium_term' }: ShareDialogProps) {
                       ))}
                     </div>
                   </div>
-                  <div className="flex items-center justify-center space-x-2">
+
+                  {/* TuneGraph Branding */}
+                  <div className="flex items-center justify-center space-x-2 pt-4">
                     <div className="bg-green-600 rounded-full p-2 flex items-center justify-center">
                       <MusicIcon className="w-8 h-8 text-black " />
                     </div>

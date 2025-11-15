@@ -110,70 +110,70 @@ export const mockTopSongs = {
     {
       rank: 1,
       name: 'Push The Tempo',
-      artist: 'Sub Focus, Katy B',
+      artist: ['Sub Focus', 'Katy B'],
       albumCover:
         'https://i.scdn.co/image/ab67616d0000b27331381dd82998702bbcfe30d9',
     },
     {
       rank: 2,
       name: 'Blinding Lights',
-      artist: 'The Weeknd',
+      artist: ['The Weeknd'],
       albumCover:
         'https://i.scdn.co/image/ab67616d0000b273e4c00b1b22c9a6e8b8b92e56',
     },
     {
       rank: 3,
       name: 'Bad Habit',
-      artist: 'Steve Lacy',
+      artist: ['Steve Lacy'],
       albumCover:
         'https://i.scdn.co/image/ab67616d0000b2731f63a0b2d9f25a7d1e4f57a9',
     },
     {
       rank: 4,
       name: 'Watermelon Sugar',
-      artist: 'Harry Styles',
+      artist: ['Harry Styles'],
       albumCover:
         'https://i.scdn.co/image/ab67616d0000b273d38a5108eaf2bde4f99864c4',
     },
     {
       rank: 5,
       name: 'Lose Yourself',
-      artist: 'Eminem',
+      artist: ['Eminem'],
       albumCover:
         'https://i.scdn.co/image/ab67616d0000b2731a2e9eecf9bdf45b3d6b8f45',
     },
     {
       rank: 6,
       name: 'Levitating',
-      artist: 'Dua Lipa',
+      artist: ['Dua Lipa'],
       albumCover:
         'https://i.scdn.co/image/ab67616d0000b2735c51d45cb49f46c4b6f2578a',
     },
     {
       rank: 7,
       name: 'Heat Waves',
-      artist: 'Glass Animals',
+      artist: ['Glass Animals'],
       albumCover:
         'https://i.scdn.co/image/ab67616d0000b273abc5b15a4c1d5a2f18e64cd9',
     },
     {
       rank: 8,
       name: 'As It Was',
-      artist: 'Harry Styles',
+      artist: ['Harry Styles'],
       albumCover:
         'https://i.scdn.co/image/ab67616d0000b27321f9a8e4b2f8b6a6e82a16e3',
     },
     {
       rank: 9,
       name: 'Stay',
-      artist: 'The Kid LAROI, Justin Bieber',
+      artist: ['The Kid LAROI', 'Justin Bieber'],
       albumCover:
         'https://i.scdn.co/image/ab67616d0000b2732a04e6bca5c75bb9e63c75a9',
     },
     {
       rank: 10,
       name: 'Flowers',
-      artist: 'Miley Cyrus',
+      artist: ['Miley Cyrus'],
       albumCover:
         'https://i.scdn.co/image/ab67616d0000b273b31b1a84b5cdeae28b2dfbe8',
     },
