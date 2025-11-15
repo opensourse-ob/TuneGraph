@@ -148,10 +148,13 @@ export const getTopGenres = async (req: Request, res: Response) => {
 
 export const getUserProfile = async (req: Request, res: Response) => {
   try {
+    
+    const accessToken = (req as any).accessToken;
+    const user_id  = req.params.id;
 
-     const accessToken = (req as any).accessToken;
-
-    const user_id  = req.query.id 
+    if(!user_id) {
+      res.status(404).json({error: "no user id"});
+    };
  
     const fetchUser = await fetch (`https://api.spotify.com/v1/users/${user_id}`, {
       headers: {
@@ -160,10 +163,19 @@ export const getUserProfile = async (req: Request, res: Response) => {
       }
     });
     
+    if(!fetchUser.ok) {
+      const text = await fetchUser.text()
+      return res.status(fetchUser.status).json({
+        error: "fetch failed",
+        details: text
+      });
+    };
 
-    res.json({})
+    const userProfile = await fetchUser.json()
+
+   return res.status(200).json(userProfile)
 
   } catch (error) {
-    
-  }
-}
+    handleError(error, res, "Failed to fetch user profile")
+  };
+};

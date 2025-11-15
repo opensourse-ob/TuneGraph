@@ -12,6 +12,6 @@ router.get("/top-songs", requireAuth, spotifycontroller.getTopSongs);
 
 router.get("/top-genres", requireAuth, spotifycontroller.getTopGenres);
 
-router.get("/users/:id", requireAuth, spotifycontroller.getUserProfile)
+router.get("/users/:id", requireAuth, spotifycontroller.getUserProfile);
 
 export default router;
