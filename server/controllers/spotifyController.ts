@@ -148,21 +148,24 @@ export const getTopGenres = async (req: Request, res: Response) => {
 
 export const getUserProfile = async (req: Request, res: Response) => {
   try {
-    
+    //get te access token that was added earlier in reqquireAuth moddleware
     const accessToken = (req as any).accessToken;
+
+  //read user id from URL params(/users/:id)
     const user_id  = req.params.id;
 
     if(!user_id) {
-      res.status(404).json({error: "no user id"});
+  res.status(404).json({error: "no user id"});
     };
- 
+ //make request to spotify api using user ud
     const fetchUser = await fetch (`https://api.spotify.com/v1/users/${user_id}`, {
       headers: {
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`, //send access token to spotify
         "Content-Type": "application/json"
       }
     });
     
+    //if spotify responded with an error 
     if(!fetchUser.ok) {
       const text = await fetchUser.text()
       return res.status(fetchUser.status).json({
@@ -170,9 +173,10 @@ export const getUserProfile = async (req: Request, res: Response) => {
         details: text
       });
     };
+//convert response into js obj
+    const userProfile = await fetchUser.json() as SpotifyUserProfile
 
-    const userProfile = await fetchUser.json()
-
+    //send final profile back to client
    return res.status(200).json(userProfile)
 
   } catch (error) {

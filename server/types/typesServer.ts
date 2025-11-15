@@ -40,13 +40,6 @@ export interface SpotifyUserProfile {
   display_name: "string",
   country: "string",
   email: "string",
-
-  followers: {
-    href: "string",
-    total: "number"
-  },
-  href: "string",
-  id: "string",
   images: [
     {
       url: "string",
