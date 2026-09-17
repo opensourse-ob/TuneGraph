@@ -1,6 +1,6 @@
 import { beforeEach, afterEach, describe, it, expect, vi } from 'vitest'
 import type { Request, Response } from 'express'
-import { login, callback, refreshToken } from '../controllers/authController'
+import { login, callback, refreshToken, getConfig, checkStatus } from '../controllers/authController'
 import { SCOPES } from '../utils/data'
 
 vi.mock('../utils/data', async importOriginal => {
@@ -53,6 +53,7 @@ beforeEach(() => {
   vi.spyOn(console, 'log').mockImplementation(() => {})
 })
 afterEach(() => {
+  fetchMock.mockReset()
   vi.useRealTimers()
   vi.unstubAllEnvs()
   vi.unstubAllGlobals()
@@ -276,5 +277,36 @@ describe('safe failures and cookie security', () => {
     for (const name of ['spotify_access_token', 'spotify_refresh_token']) {
       expect(cookieOptions(res, name)).toMatchObject({ httpOnly: true, secure: true, sameSite: 'lax' })
     }
+  })
+})
+
+
+describe('authentication status and debug configuration', () => {
+  it.each([undefined, {}, { spotify_access_token: '' }, { spotify_access_token: 'test-access' }])(
+    'reports cookie presence without contacting Spotify (%s)', cookies => {
+      const res = response()
+      checkStatus({ cookies } as Request, asResponse(res))
+      expect(res.json).toHaveBeenCalledWith({ authenticated: Boolean(cookies?.spotify_access_token) })
+      expect(fetchMock).not.toHaveBeenCalled()
+    })
+  it('returns only configuration status and public URLs', () => {
+    const res = response()
+    getConfig({} as Request, asResponse(res))
+    expect(res.json).toHaveBeenCalledWith({
+      redirect_uri: 'http://127.0.0.1:3001/api/auth/callback',
+      frontend_url: 'http://127.0.0.1:5173',
+      client_id_configured: true, client_secret_configured: true,
+    })
+    expect(JSON.stringify(res.json.mock.calls)).not.toContain('test-client-secret')
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+  it('reports missing credential configuration as booleans', () => {
+    vi.stubEnv('SPOTIFY_CLIENT_ID', '')
+    vi.stubEnv('SPOTIFY_CLIENT_SECRET', '')
+    const res = response()
+    getConfig({} as Request, asResponse(res))
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+      client_id_configured: false, client_secret_configured: false,
+    }))
   })
 })

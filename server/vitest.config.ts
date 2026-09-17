@@ -18,8 +18,11 @@ export default defineConfig({
     // Optional: enable coverage if you want
     coverage: {
       provider: 'v8',
+      thresholds: { lines: 85, statements: 85, branches: 90, functions: 95 },
       // Include all executable backend production files, including untested ones.
-      include: ['index.ts', 'controllers/**/*.ts', 'middlewares/**/*.ts', 'routes/**/*.ts', 'utils/**/*.ts'],
+      include: ['app.ts', 'controllers/**/*.ts', 'middlewares/**/*.ts', 'routes/**/*.ts', 'utils/**/*.ts'],
+      exclude: ['**/*.test.ts', '**/__tests__/**', '**/*.d.ts', 'types/**', 'dist/**', 'coverage/**', 'index.ts'],
+      reporter: ['text', 'json', 'json-summary', 'html'],
       reportsDirectory: './coverage',
     },
   },

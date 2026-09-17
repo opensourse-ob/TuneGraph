@@ -17,11 +17,13 @@ import { handleError } from '../utils/handleError'
 // Helper for consistent error handling and logging
 
 import { getQueryParams } from '../utils/getQueryParams'
+import { HttpError } from '../utils/httpError'
+import { getAccessToken } from '../middlewares/requireAuth'
 // Helper that extracts query parameters (time_range, limit) from request
 
 export const getTopArtists = async (req: Request, res: Response) => {
   try {
-    const accessToken = (req as any).accessToken
+    const accessToken = getAccessToken(req)
     // Retrieve user's Spotify access token added earlier by middleware
 
     const { timeRange, limit } = getQueryParams(req)
@@ -30,8 +32,10 @@ export const getTopArtists = async (req: Request, res: Response) => {
     // Call Spotify API for user's top artists
     const data = (await spotifyApiRequest(
       accessToken,
-      `/me/top/artists?time_range=${timeRange}&limit=${limit}`
+      `/me/top/artists?${new URLSearchParams({ time_range: timeRange, limit: limit ?? '20' })}`
     )) as SpotifyTopArtistsResponse
+
+    if (!data || !Array.isArray(data.items)) throw new HttpError(502, 'Invalid Spotify response')
 
     // Transform Spotify data to match frontend's expected structure
     const topArtists = data.items.map(
@@ -59,7 +63,7 @@ export const getTopArtists = async (req: Request, res: Response) => {
 
 export const getTopSongs = async (req: Request, res: Response) => {
   try {
-    const accessToken = (req as any).accessToken
+    const accessToken = getAccessToken(req)
     // Get access token for authenticated Spotify user
 
     const { timeRange, limit } = getQueryParams(req)
@@ -68,8 +72,10 @@ export const getTopSongs = async (req: Request, res: Response) => {
     // Call Spotify API for top tracks
     const data = (await spotifyApiRequest(
       accessToken,
-      `/me/top/tracks?time_range=${timeRange}&limit=${limit}`
+      `/me/top/tracks?${new URLSearchParams({ time_range: timeRange, limit: limit ?? '20' })}`
     )) as SpotifyTopTracksResponse
+
+    if (!data || !Array.isArray(data.items)) throw new HttpError(502, 'Invalid Spotify response')
 
     // Format Spotify track data for frontend
     const topSongs = data.items.map((track: SpotifyTrack, index: number) => ({
@@ -93,7 +99,7 @@ export const getTopSongs = async (req: Request, res: Response) => {
 //-------------------------get top genres-----------------------------------
 export const getTopGenres = async (req: Request, res: Response) => {
   try {
-    const accessToken = (req as any).accessToken
+    const accessToken = getAccessToken(req)
     // Get access token from middleware
 
     const { timeRange, limit } = getQueryParams(req)
@@ -102,8 +108,10 @@ export const getTopGenres = async (req: Request, res: Response) => {
     // Request user's top artists (needed to calculate genres)
     const data = (await spotifyApiRequest(
       accessToken,
-      `/me/top/artists?time_range=${timeRange}&limit=${limit || 50}`
+      `/me/top/artists?${new URLSearchParams({ time_range: timeRange, limit: limit ?? '50' })}`
     )) as SpotifyTopArtistsResponse
+
+    if (!data || !Array.isArray(data.items)) throw new HttpError(502, 'Invalid Spotify response')
 
     const genreCount: Record<string, number> = {}
     // Create an object to count genre frequencies
@@ -146,18 +154,18 @@ export const getTopGenres = async (req: Request, res: Response) => {
 
 export const getUserProfile = async (req: Request, res: Response) => {
   try {
-    const accessToken = (req as any).accessToken
+    const accessToken = getAccessToken(req)
     // Get access token from middleware
 
     const user_id = req.params.id
     // Extract user ID from URL parameter (can be "me" for current user)
 
-    if (!user_id) {
+    if (typeof user_id !== 'string' || !user_id) {
       return res.status(400).json({ error: 'no user id' })
     }
 
     // Determine endpoint: /me for current user, /users/{id} for specific user
-    const endpoint = user_id === 'me' ? '/me' : `/users/${user_id}`
+    const endpoint = user_id === 'me' ? '/me' : `/users/${encodeURIComponent(user_id)}`
 
     // Call Spotify API for user profile
     const data = (await spotifyApiRequest(
