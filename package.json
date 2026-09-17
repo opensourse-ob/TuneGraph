@@ -5,14 +5,20 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "test": "vitest --config vitest.config.ts",
+    "test": "npm run test:all",
     "dev:server": "nodemon --config server/nodemon.json",
     "dev:all": "concurrently \"npm run dev\" \"npm run dev:server\"",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,scss,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,css,scss,md}\"",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:frontend": "vitest run --config vitest.config.ts",
+    "test:backend": "npm --prefix server run test:run",
+    "test:all": "npm run test:frontend && npm run test:backend",
+    "test:watch": "vitest --config vitest.config.ts",
+    "typecheck:server": "npm --prefix server run typecheck",
+    "typecheck:client-tests": "tsc -p client/tsconfig.test.json --noEmit"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
@@ -48,6 +54,7 @@
     "@types/react": "^19.1.16",
     "@types/react-dom": "^19.1.9",
     "@vitejs/plugin-react": "^5.0.4",
+    "@vitest/coverage-v8": "4.0.8",
     "babel-plugin-react-compiler": "^19.1.0-rc.3",
     "concurrently": "^9.2.1",
     "cors": "^2.8.5",

@@ -4,10 +4,10 @@ import TopSongs from '../components/TopSongs'
 import { mockTopSongs } from '@/components/fakespotifydb'
 
 beforeEach(() => {
-  vi.spyOn(global, 'fetch').mockResolvedValue({
+  vi.spyOn(globalThis, 'fetch').mockResolvedValue({
     ok: true,
     json: async () => mockTopSongs,
-  } as any)
+  } as Response)
 })
 
 afterEach(() => {
