@@ -1,12 +1,19 @@
-import type { Request, Response, NextFunction } from "express";
+import type { Request, Response, NextFunction } from 'express'
+import { HttpError } from '../utils/httpError'
 
-// Middleware to check if user is authenticated
-//------------------------------get access token for future request-------------------
+export type AuthenticatedRequest = Request & { accessToken?: string }
+
+export function getAccessToken(req: Request): string {
+  const token = (req as AuthenticatedRequest).accessToken
+  if (typeof token !== 'string' || !token) throw new HttpError(401, 'Unauthorized')
+  return token
+}
+
 export const requireAuth = (req: Request, res: Response, next: NextFunction) => {
-  const accessToken = req.cookies?.spotify_access_token;
-  if (!accessToken) {
-    return res.status(401).json({ error: "Unauthorized" });
+  const accessToken = req.cookies?.spotify_access_token
+  if (typeof accessToken !== 'string' || !accessToken) {
+    return res.status(401).json({ error: 'Unauthorized' })
   }
-  (req as any).accessToken = accessToken;
-  next();
-};
+  ;(req as AuthenticatedRequest).accessToken = accessToken
+  next()
+}

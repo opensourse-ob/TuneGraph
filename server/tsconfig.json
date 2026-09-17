@@ -13,7 +13,7 @@
     "moduleResolution": "node",
     "types": ["node"]
   },
-  "include": ["index.ts", "controllers/**/*.ts", "middlewares/**/*.ts", "routes/**/*.ts", "types/**/*.ts", "utils/**/*.ts"],
+  "include": ["index.ts", "app.ts", "controllers/**/*.ts", "middlewares/**/*.ts", "routes/**/*.ts", "types/**/*.ts", "utils/**/*.ts"],
   "exclude": ["node_modules"]
 }
 
