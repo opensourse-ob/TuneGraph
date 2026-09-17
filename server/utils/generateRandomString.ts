@@ -1,12 +1,6 @@
-/*
- * -------------Helper function to generate random string for state parameter-------------
- */
+import { randomBytes } from 'node:crypto'
+
+// Length is the number of random bytes (hex encoding doubles the string length).
 export function generateRandomString(length: number): string {
-  const possible =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let text = "";
-  for (let i = 0; i < length; i++) {
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-  return text;
+  return randomBytes(length).toString('hex')
 }

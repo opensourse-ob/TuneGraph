@@ -1,12 +1,7 @@
 // Scopes needed for the application
 // See: https://developer.spotify.com/documentation/web-api/concepts/scopes
 export const SCOPES = [
-  "user-read-private",
-  "user-read-email",
   "user-top-read",
-  "user-read-recently-played",
-  "playlist-read-private",
-  "playlist-read-collaborative",
 ];
 
 //this info for developer, he gets it after register on spotify

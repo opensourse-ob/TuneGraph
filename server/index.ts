@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser' //parse cookie in req.cookies
 import type { Request, Response, NextFunction } from 'express'
 import authRoutes from './routes/authRoutes'
 import spotifyRoutes from './routes/spotifyRoutes'
+import { requestLogger } from './middlewares/requestLogger'
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -20,12 +21,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true })) //allows to read forms data through req.body
 app.use(cookieParser())
 
-function logger(req: Request, res: Response, next: NextFunction) {
-  //allows to see path
-  console.log(req.originalUrl)
-  next()
-}
-app.use(logger)
+app.use(requestLogger)
 
 // Routes
 app.use('/api/auth', authRoutes)

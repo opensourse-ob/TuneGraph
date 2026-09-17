@@ -12,7 +12,20 @@ import { generateRandomString } from "../utils/generateRandomString";
 
 
 // Store random state values temporarily during the OAuth flow
-const pendingStates = new Set<string>();
+const STATE_TTL_MS = 10 * 60 * 1000;
+// Application cookie retention policy, not Spotify's refresh-token expiry.
+const REFRESH_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+const pendingStates = new Map<string, number>();
+
+function pruneExpiredStates() {
+  const now = Date.now();
+  for (const [state, expiresAt] of pendingStates) {
+    if (expiresAt <= now) pendingStates.delete(state);
+  }
+}
+
+// Clean up idle entries as well as pruning on login/callback.
+setInterval(pruneExpiredStates, STATE_TTL_MS).unref();
 
 // Note: Spotify requires 127.0.0.1 instead of localhost for redirect URI
 // (This avoids redirect issues on local dev)
@@ -63,18 +76,21 @@ export const login = (req: Request, res: Response) => {
   if (!SPOTIFY_REDIRECT_URI) return res.status(500).json({ error: "Redirect URI not configured" });
 
   // Generate random "state" string for CSRF protection
-  const state = generateRandomString(16);
+  pruneExpiredStates();
+  const previousState = req.cookies?.spotify_auth_state;
+  if (typeof previousState === "string") pendingStates.delete(previousState);
+  const state = generateRandomString(32);
 
   // Save it in an HTTP-only cookie (cannot be accessed from frontend)
   res.cookie("spotify_auth_state", state, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    maxAge: 600000, // 10 minutes
+    maxAge: STATE_TTL_MS, // 10 minutes
   });
 
   // Also store the same state in server memory (useful in local dev)
-  pendingStates.add(state);
+  pendingStates.set(state, Date.now() + STATE_TTL_MS);
 
   // Combine Spotify scopes into a single string
   const scope = SCOPES.length > 0 ? SCOPES.join(" ") : undefined;
@@ -93,9 +109,6 @@ export const login = (req: Request, res: Response) => {
   // Skip re-asking user for permissions if already authorized
   params.show_dialog = "false";
 
-  // Log redirect URI for debugging
-  console.log("Redirect URI being used:", SPOTIFY_REDIRECT_URI);
-
   // Convert parameters into URL query string format
   const queryString = new URLSearchParams(params).toString();
 
@@ -109,32 +122,33 @@ export const login = (req: Request, res: Response) => {
  * Handles the callback from Spotify after user authorization
  */
 export const callback = async (req: Request, res: Response) => {
-  // Extract data sent back from Spotify after user login
-  const code = req.query.code as string;
-  const state = req.query.state as string;
-  const error = req.query.error as string;
+  const code = req.query.code;
+  const state = req.query.state;
+  const error = req.query.error;
   const storedState = req.cookies?.spotify_auth_state;
+  pruneExpiredStates();
 
-  // Verify state for CSRF protection
-  const cookieMatches = state !== null && state === storedState;
-  const memoryMatches = state !== null && pendingStates.has(state);
+  const validState = typeof state === "string" && state.length > 0
+    && typeof storedState === "string" && storedState.length > 0
+    && state === storedState && pendingStates.has(state);
 
-  if (!cookieMatches && !memoryMatches) {
-    // If states don't match — potential CSRF attack
-    console.error("State mismatch - possible CSRF attack");
-    res.clearCookie("spotify_auth_state");
+  // Clear the browser state even when the callback is rejected.
+  res.clearCookie("spotify_auth_state");
+  if (!validState) {
+    // Invalidate this browser's pending attempt; do not consume another browser's state.
+    if (typeof storedState === "string") pendingStates.delete(storedState);
+    console.error("OAuth state validation failed");
     return res.status(403).json({ error: "State parameter mismatch" });
   }
 
-  // Remove the used state from cookie and memory
-  res.clearCookie("spotify_auth_state");
-  if (state) pendingStates.delete(state);
-
-  // If Spotify returned an error (e.g., user denied access)
-  if (error) return res.redirect(`${FRONTEND_URL}?error=${encodeURIComponent(error)}`);
-
-  // Ensure we have the authorization code
-  if (!code) return res.status(400).json({ error: "Authorization code not provided" });
+  // Consume before any asynchronous token exchange, preventing concurrent reuse.
+  pendingStates.delete(state as string);
+  if (typeof error === "string" && error) {
+    return res.redirect(`${FRONTEND_URL}?error=${encodeURIComponent(error)}`);
+  }
+  if (typeof code !== "string" || !code) {
+    return res.status(400).json({ error: "Authorization code not provided" });
+  }
 
   // Check credentials
   if (!SPOTIFY_CLIENT_ID || !SPOTIFY_CLIENT_SECRET) {
@@ -158,14 +172,21 @@ export const callback = async (req: Request, res: Response) => {
 
     // Handle failed token request
     if (!tokenResponse.ok) {
-      const errorData = await tokenResponse.text();
-      console.error("Token exchange error:", errorData);
+      console.error("Token exchange failed", { status: tokenResponse.status });
       return res.status(500).json({ error: "Failed to exchange authorization code for token" });
     }
 
     // Parse Spotify’s response into our typed object
     const tokenData = (await tokenResponse.json()) as SpotifyTokenResponse;
 
+    if (!tokenData || typeof tokenData.access_token !== "string" || !tokenData.access_token
+      || !Number.isFinite(tokenData.expires_in) || tokenData.expires_in <= 0) {
+      console.error("Token exchange returned an invalid response");
+      return res.status(500).json({ error: "Invalid token response" });
+    }
+
+    // A new authorization must not inherit a previous account's refresh token.
+    res.clearCookie("spotify_refresh_token");
     // Save access token as secure cookie
     res.cookie("spotify_access_token", tokenData.access_token, {
       httpOnly: true,
@@ -175,20 +196,20 @@ export const callback = async (req: Request, res: Response) => {
     });
 
     // Save refresh token (if present)
-    if (tokenData.refresh_token) {
+    if (typeof tokenData.refresh_token === "string" && tokenData.refresh_token) {
       res.cookie("spotify_refresh_token", tokenData.refresh_token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
-        maxAge: tokenData.expires_in * 1000,
+        maxAge: REFRESH_TOKEN_TTL_MS,
       });
     }
 
     // Redirect back to frontend with success flag
     res.redirect(`${FRONTEND_URL}?auth=success`);
     console.log("Redirecting to frontend with auth=success");
-  } catch (error) {
-    console.error("Error during token exchange:", error);
+  } catch {
+    console.error("Token exchange encountered an internal error");
     res.status(500).json({ error: "Internal server error during authentication" });
   }
 };
@@ -201,10 +222,9 @@ export const callback = async (req: Request, res: Response) => {
 export const refreshToken = async (req: Request, res: Response) => {
   // Read stored refresh token from cookies
   const refreshToken = req.cookies?.spotify_refresh_token;
-  console.log("refresh_token", refreshToken);
 
   // If no refresh token — cannot continue
-  if (!refreshToken) return res.status(400).json({ error: "Refresh token is required" });
+  if (typeof refreshToken !== "string" || !refreshToken) return res.status(400).json({ error: "Refresh token is required" });
 
   // Verify credentials exist
   if (!SPOTIFY_CLIENT_ID || !SPOTIFY_CLIENT_SECRET) {
@@ -227,13 +247,28 @@ export const refreshToken = async (req: Request, res: Response) => {
 
     // Handle failed response
     if (!tokenResponse.ok) {
-      const errorData = await tokenResponse.text();
-      console.error("Token refresh error:", errorData);
+      // Read only the OAuth error identifier; never log or return its description/body.
+      let oauthError: unknown;
+      if (tokenResponse.status === 400) {
+        try { oauthError = (await tokenResponse.json()).error; } catch {}
+      }
+      console.error("Token refresh failed", { status: tokenResponse.status });
+      if (oauthError === "invalid_grant") {
+        res.clearCookie("spotify_access_token");
+        res.clearCookie("spotify_refresh_token");
+        return res.status(401).json({ error: "Spotify authorization expired; log in again" });
+      }
       return res.status(500).json({ error: "Failed to refresh token" });
     }
 
     // Parse new token data
     const tokenData = (await tokenResponse.json()) as SpotifyTokenResponse;
+
+    if (!tokenData || typeof tokenData.access_token !== "string" || !tokenData.access_token
+      || !Number.isFinite(tokenData.expires_in) || tokenData.expires_in <= 0) {
+      console.error("Token refresh returned an invalid response");
+      return res.status(500).json({ error: "Invalid token response" });
+    }
 
     // Update cookies with new access token
     res.cookie("spotify_access_token", tokenData.access_token, {
@@ -244,12 +279,12 @@ export const refreshToken = async (req: Request, res: Response) => {
     });
 
     // Update refresh token if Spotify sent a new one
-    if (tokenData.refresh_token) {
+    if (typeof tokenData.refresh_token === "string" && tokenData.refresh_token) {
       res.cookie("spotify_refresh_token", tokenData.refresh_token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
-        maxAge: tokenData.expires_in * 1000,
+        maxAge: REFRESH_TOKEN_TTL_MS,
       });
     }
 
@@ -258,8 +293,8 @@ export const refreshToken = async (req: Request, res: Response) => {
       success: true,
       expires_in: tokenData.expires_in,
     });
-  } catch (error) {
-    console.error("Error during token refresh:", error);
+  } catch {
+    console.error("Token refresh encountered an internal error");
     res.status(500).json({ error: "Internal server error during token refresh" });
   }
 };
