@@ -250,7 +250,7 @@ export const refreshToken = async (req: Request, res: Response) => {
       // Read only the OAuth error identifier; never log or return its description/body.
       let oauthError: unknown;
       if (tokenResponse.status === 400) {
-        try { oauthError = (await tokenResponse.json()).error; } catch {}
+        try { oauthError = (await tokenResponse.json() as { error?: unknown }).error; } catch {}
       }
       console.error("Token refresh failed", { status: tokenResponse.status });
       if (oauthError === "invalid_grant") {

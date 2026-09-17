@@ -3,15 +3,6 @@ import './App.css'
 import LoginCard from './components/LoginCard'
 import MainContainer from './components/MainContainer'
 
-interface ApiResponse {
-  message?: string
-  data?: string
-  method?: string
-  query?: Record<string, string>
-  status?: string
-  timestamp?: string
-}
-
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)

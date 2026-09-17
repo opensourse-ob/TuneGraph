@@ -1,7 +1,15 @@
+import type { ComponentType, ReactNode } from 'react'
 import { Card, CardDescription, CardHeader, CardTitle } from './ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
 
-function OneTab(props) {
+interface OneTabProps {
+  timeline: string
+  cardNames: string[]
+  icons: ComponentType<{ className?: string }>[]
+  cardNameValue: ReactNode
+}
+
+function OneTab(props: OneTabProps) {
   return (
     <div>
       <Tabs>

@@ -7,7 +7,7 @@ export default defineConfig({
     environment: 'node',
 
     // Where to look for test files
-    include: ['**/*.test.ts'],
+    include: ['__tests__/**/*.test.ts'],
 
     // Optional: clear mocks between tests
     clearMocks: true,
@@ -18,6 +18,8 @@ export default defineConfig({
     // Optional: enable coverage if you want
     coverage: {
       provider: 'v8',
+      // Include all executable backend production files, including untested ones.
+      include: ['index.ts', 'controllers/**/*.ts', 'middlewares/**/*.ts', 'routes/**/*.ts', 'utils/**/*.ts'],
       reportsDirectory: './coverage',
     },
   },
