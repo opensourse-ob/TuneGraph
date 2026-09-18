@@ -4,10 +4,10 @@ interface TopSong {
   rank: number
   name: string
   artist: string[]
-  albumCover: string
+  albumCover: string | null
 }
 
-interface UseTopSongsResult {
+export interface UseTopSongsResult {
   topSongs: TopSong[]
   isLoading: boolean
   error: Error | null
@@ -18,8 +18,8 @@ export const useTopSongs = (
   limit: number = 20
 ): UseTopSongsResult => {
   const [topSongs, setTopSongs] = useState<TopSong[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
 
   const fetchTopSongs = async (timeRange: string) => {
     setIsLoading(true)
@@ -35,10 +35,9 @@ export const useTopSongs = (
       }
 
       const data = await response.json()
-      console.log(data.items)
       setTopSongs(data.items)
     } catch (err) {
-      // setError(err)
+      setError(new Error('Unable to load your top music. Please try again.'))
       console.error(err)
     } finally {
       setIsLoading(false)
