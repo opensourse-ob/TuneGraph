@@ -10,6 +10,16 @@ Git history attributes these contributions to Olga Bel:
 - Restored production builds and separated frontend/backend test configuration (`32a7bf7`).
 - Expanded backend behavioral and route integration tests, with coverage thresholds (`98a66ea`).
 
+## Demo
+
+The dashboard displays Spotify top artists and tracks.
+
+<img src="docs/images/tunegraph-dashboard.png" alt="TuneGraph dashboard displaying Spotify top artists and tracks" width="100%">
+
+The share card can be downloaded as a PNG image.
+
+<img src="docs/images/tunegraph-share-card.png" alt="Exported TuneGraph PNG share card showing top artists and tracks" width="360">
+
 ## Key features
 - Sign in through Spotify's Authorization Code OAuth flow.
 - View top artists and tracks across three Spotify time ranges.
