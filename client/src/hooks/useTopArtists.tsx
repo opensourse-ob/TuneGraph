@@ -10,7 +10,7 @@ interface TopArtist {
   external_urls: { spotify: string }
 }
 
-interface UseTopArtistsResult {
+export interface UseTopArtistsResult {
   topArtists: TopArtist[]
   isLoading: boolean
   error: Error | null
@@ -21,8 +21,8 @@ export const useTopArtists = (
   limit: number = 20
 ): UseTopArtistsResult => {
   const [topArtists, setTopArtists] = useState<TopArtist[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
 
   const fetchTopArtists = async (timeRange: string) => {
     setIsLoading(true)
@@ -38,10 +38,9 @@ export const useTopArtists = (
       }
 
       const data = await response.json()
-      console.log(data.items)
       setTopArtists(data.items)
     } catch (err) {
-      // setError(err)
+      setError(new Error('Unable to load your top music. Please try again.'))
       console.error(err)
     } finally {
       setIsLoading(false)

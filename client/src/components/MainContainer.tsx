@@ -1,3 +1,5 @@
+import { useTopArtists } from '@/hooks/useTopArtists'
+import { useTopSongs } from '@/hooks/useTopSongs'
 // import {useEffect, useState} from 'react'
 import NavBar from './NavBar.tsx'
 //import { Button } from './ui/button.tsx'
@@ -18,6 +20,8 @@ import { ArtistChart } from './ArtistChart.tsx'
 const MainContainer = () => {
   const [mobileView, setMobileView] = useState<'artists' | 'songs'>('artists')
   const [timeRange, setTimeRange] = useState('medium_term')
+  const artists = useTopArtists(timeRange, 20)
+  const songs = useTopSongs(timeRange, 20)
   const timeRanges = [
     { value: 'short_term', label: '4 weeks' },
     { value: 'medium_term', label: 'Last 3 months' },
@@ -26,7 +30,7 @@ const MainContainer = () => {
 
   return (
     <>
-      <NavBar />
+      <NavBar artists={artists} songs={songs} />
       <div className="bg-slate-950 p-4 sm:p-6 lg:p-8 overflow-x-hidden">
         <div className="w-full overflow-x-hidden">
           <div className="flex flex-col justify-center w-full mx-auto max-w-7xl rounded-lg min-w-0">
@@ -53,17 +57,17 @@ const MainContainer = () => {
             {/* Desktop: show both artist and songs */}
             <div className="hidden sm:flex justify-between gap-4 lg:gap-6 min-w-0">
               <div className="flex-1 min-w-0">
-                <TopArtists timeRange={timeRange} />
+                <TopArtists timeRange={timeRange} data={artists} />
               </div>
               <div className="flex-1 min-w-0">
-                <TopSongs timeRange={timeRange} />
+                <TopSongs timeRange={timeRange} data={songs} />
               </div>
             </div>
             <div className="block sm:hidden">
               {mobileView === 'artists' ? (
-                <TopArtists timeRange={timeRange} />
+                <TopArtists timeRange={timeRange} data={artists} />
               ) : (
-                <TopSongs timeRange={timeRange} />
+                <TopSongs timeRange={timeRange} data={songs} />
               )}
             </div>
             <div className="flex flex-col align-middle justify-center mt-6 bg-slate-900 rounded-lg border border-slate-800 p-8">

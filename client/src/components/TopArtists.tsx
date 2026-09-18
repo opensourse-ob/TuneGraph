@@ -5,14 +5,21 @@ import {
   CardHeader,
   CardTitle,
 } from './ui/card'
-import { useTopArtists } from '@/hooks/useTopArtists'
+import { useTopArtists, type UseTopArtistsResult } from '@/hooks/useTopArtists'
 
 interface TopArtistsProps {
   timeRange: string
+  data?: UseTopArtistsResult
 }
 
-const TopArtists: React.FC<TopArtistsProps> = ({ timeRange }) => {
-  const { topArtists, isLoading, error } = useTopArtists(timeRange, 20)
+function LoadedTopArtists({ timeRange }: TopArtistsProps) {
+  const data = useTopArtists(timeRange, 20)
+  return <TopArtists timeRange={timeRange} data={data} />
+}
+
+const TopArtists: React.FC<TopArtistsProps> = ({ timeRange, data }) => {
+  if (!data) return <LoadedTopArtists timeRange={timeRange} />
+  const { topArtists, isLoading, error } = data
 
   const getArtistImage = (images: (typeof topArtists)[0]['images']) => {
     return images && images.length > 0 ? images[0].url : null

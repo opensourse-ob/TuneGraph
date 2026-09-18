@@ -1,7 +1,15 @@
+import type { UseTopArtistsResult } from '@/hooks/useTopArtists'
+import type { UseTopSongsResult } from '@/hooks/useTopSongs'
 import { MusicIcon } from 'lucide-react'
 import { ShareDialog } from './DialogShareable'
 
-const NavBar = () => {
+const NavBar = ({
+  artists,
+  songs,
+}: {
+  artists: UseTopArtistsResult
+  songs: UseTopSongsResult
+}) => {
   return (
     <nav className="flex sticky top-0 z-50 justify-between items-center bg-slate-900 border-b border-slate-800 py-3 sm:px-16 px-4">
       <div className="flex space-x-2 items-center">
@@ -13,7 +21,7 @@ const NavBar = () => {
         </h2>
       </div>
 
-      <ShareDialog timeRange="medium_term" />
+      <ShareDialog artists={artists} songs={songs} />
     </nav>
   )
 }

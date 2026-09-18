@@ -1,4 +1,4 @@
-import { useTopSongs } from '@/hooks/useTopSongs'
+import { useTopSongs, type UseTopSongsResult } from '@/hooks/useTopSongs'
 import {
   Card,
   CardContent,
@@ -9,10 +9,17 @@ import {
 
 interface TopSongsProps {
   timeRange: string
+  data?: UseTopSongsResult
 }
 
-const TopSongs: React.FC<TopSongsProps> = ({ timeRange }) => {
-  const { topSongs, isLoading, error } = useTopSongs(timeRange, 20)
+function LoadedTopSongs({ timeRange }: TopSongsProps) {
+  const data = useTopSongs(timeRange, 20)
+  return <TopSongs timeRange={timeRange} data={data} />
+}
+
+const TopSongs: React.FC<TopSongsProps> = ({ timeRange, data }) => {
+  if (!data) return <LoadedTopSongs timeRange={timeRange} />
+  const { topSongs, isLoading, error } = data
 
   const getSongImage = (albumCover: (typeof topSongs)[0]['albumCover']) => {
     return albumCover
